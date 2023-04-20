@@ -59,6 +59,12 @@ app.delete('/api/notes/:id', (request, response) => {
 app.post('/api/notes', (request, response) => {
   const note = request.body;
 
+  if(!note || !note.content) {
+    return response.status(400).json({
+      error: 'note content is missing'
+    });
+  }
+
   // Get all the ids
   const ids = notes.map(note => note.id);
   // Get the max id from the ids variable
@@ -74,10 +80,8 @@ app.post('/api/notes', (request, response) => {
 
   notes = [...notes, newNote];
 
-  console.log("new notes list:", notes);
-
   // Use body parser to parse the body of the request
-  response.json(note);
+  response.status(201).json(note);
 });
 
 
