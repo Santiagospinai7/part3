@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json()); // initial Parse JSON bodies
+
 let notes = [
   {
     id: 1,
@@ -53,6 +55,31 @@ app.delete('/api/notes/:id', (request, response) => {
   notes = notes.filter(note => note.id !== id);
   response.status(204).end();
 });
+
+app.post('/api/notes', (request, response) => {
+  const note = request.body;
+
+  // Get all the ids
+  const ids = notes.map(note => note.id);
+  // Get the max id from the ids variable
+  const maxId = Math.max(...ids);
+
+  // Create a new note object
+  const newNote = {
+    id: Math.max(...ids) + 1,
+    content: note.content,
+    important: typeof note.important !== 'undefined' ? note.important : false,
+    date: new Date().toISOString(),
+  };
+
+  notes = [...notes, newNote];
+
+  console.log("new notes list:", notes);
+
+  // Use body parser to parse the body of the request
+  response.json(note);
+});
+
 
 const PORT = 3001;
 app.listen(PORT, () => {
