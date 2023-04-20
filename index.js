@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const notes = [
+let notes = [
   {
     id: 1,
     content: 'HTML is easy!',
@@ -33,6 +33,25 @@ app.get('/', (request, response) => {
 
 app.get('/api/notes', (request, response) => {
   response.json(notes);
+});
+
+app.get('/api/notes/:id', (request, response) => {
+  const id = request.params.id;
+  const note = notes.find(note => note.id === Number(id));
+  console.log("show notes");
+
+  if (note) {
+    response.json(note);
+  } else {
+    // response.send('<h1>Llorela papaaa, no hay nada</h1>');
+    response.status(404).end();
+  }
+});
+
+app.delete('/api/notes/:id', (request, response) => {
+  const id = Number(request.params.id);
+  notes = notes.filter(note => note.id !== id);
+  response.status(204).end();
 });
 
 const PORT = 3001;
