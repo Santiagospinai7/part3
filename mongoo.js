@@ -1,5 +1,6 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
+const { Schema } = mongoose
 
 const password = process.env.DB_PASSWORD
 const dbName = 'reviews'
@@ -18,3 +19,12 @@ mongoose.connect(connectionString, {
   }).catch((error) => {
     console.log('Error connecting to MongoDB', error.message)
   })
+
+// Define a schema
+const noteSchema = new Schema({
+  content: String,
+  date: Date,
+  important: Boolean
+})
+
+// Define a model
