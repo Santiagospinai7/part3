@@ -54,7 +54,7 @@ app.get('/api/reviews', (request, response) => {
 app.get('/api/reviews/:id', (request, response) => {
   const id = request.params.id
   const review = reviews.find(review => review.id === Number(id))
-  console.log('show notes')
+  console.log('show reviews')
 
   if (review) {
     response.json(review)
@@ -64,13 +64,13 @@ app.get('/api/reviews/:id', (request, response) => {
   }
 })
 
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/reviews/:id', (request, response) => {
   const id = Number(request.params.id)
   reviews = reviews.filter(note => note.id !== id)
   response.status(204).end()
 })
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/reviews', (request, response) => {
   const review = request.body
 
   if (!review || !review.content || !review.title) {
@@ -79,24 +79,20 @@ app.post('/api/notes', (request, response) => {
     })
   }
 
-  // Get all the ids
-  const ids = reviews.map(review => review.id)
-  // Get the max id from the ids variable
-  // const maxId = Math.max(...ids)
-
-  // Create a new review object
-  const newReview = {
-    id: Math.max(...ids) + 1,
+  const newReview = new Review({
     title: review.title,
     content: review.content,
     important: typeof review.important !== 'undefined' ? review.important : false,
     date: new Date().toISOString()
-  }
+  })
 
-  reviews = [...reviews, newReview]
+  newReview.save()
+    .then(savedReview => {
+      response.status(201).json(savedReview)
+    })
 
   // Use body parser to parse the body of the request
-  response.status(201).json(review)
+  // response.status(201).json(review)
 })
 
 app.use((request, response) => {

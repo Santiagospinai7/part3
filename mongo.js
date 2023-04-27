@@ -3,8 +3,6 @@ const mongoose = require('mongoose')
 
 const connectionString = process.env.MONGO_URL
 
-console.log(connectionString)
-
 // Connect to mongodb
 mongoose.connect(connectionString)
   .then(() => {
