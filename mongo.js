@@ -1,10 +1,9 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-const password = process.env.DB_PASSWORD
-const dbName = 'learningdb'
+const connectionString = process.env.MONGO_URL
 
-const connectionString = `mongodb+srv://sospinai7:${password}@cluster0.jsf0goa.mongodb.net/${dbName}?retryWrites=true&w=majority`
+console.log(connectionString)
 
 // Connect to mongodb
 mongoose.connect(connectionString)
