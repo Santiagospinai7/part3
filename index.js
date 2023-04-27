@@ -1,16 +1,18 @@
+require('./mongo')
+
 const cors = require('cors')
 const express = require('express')
+const logger = require('./loggerMiddleware')
+const Review = require('./models/Review')
 
 const app = express()
-
-const logger = require('./loggerMiddleware')
 
 app.use(cors())
 app.use(express.json()) // initial Parse JSON bodies
 
 app.use(logger)
 
-let notes = [
+let reviews = [
   {
     id: 1,
     title: 'HTML is easy',
@@ -43,56 +45,58 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/notes', (request, response) => {
-  response.json(notes)
+app.get('/api/reviews', (request, response) => {
+  Review.find({}).then(reviews => {
+    response.json(reviews)
+  })
 })
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/reviews/:id', (request, response) => {
   const id = request.params.id
-  const note = notes.find(note => note.id === Number(id))
+  const review = reviews.find(review => review.id === Number(id))
   console.log('show notes')
 
-  if (note) {
-    response.json(note)
+  if (review) {
+    response.json(review)
   } else {
-    // response.send('<h1>Llorela papaaa, no hay nada</h1>');
+    // response.send('<h1>no hay</h1>');
     response.status(404).end()
   }
 })
 
 app.delete('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
+  reviews = reviews.filter(note => note.id !== id)
   response.status(204).end()
 })
 
 app.post('/api/notes', (request, response) => {
-  const note = request.body
+  const review = request.body
 
-  if (!note || !note.content || !note.title) {
+  if (!review || !review.content || !review.title) {
     return response.status(400).json({
-      error: 'note content is missing'
+      error: 'review content is missing'
     })
   }
 
   // Get all the ids
-  const ids = notes.map(note => note.id)
+  const ids = reviews.map(review => review.id)
   // Get the max id from the ids variable
   // const maxId = Math.max(...ids)
 
-  // Create a new note object
-  const newNote = {
+  // Create a new review object
+  const newReview = {
     id: Math.max(...ids) + 1,
-    title: note.title,
-    content: note.content,
-    important: typeof note.important !== 'undefined' ? note.important : false,
+    title: review.title,
+    content: review.content,
+    important: typeof review.important !== 'undefined' ? review.important : false,
     date: new Date().toISOString()
   }
 
-  notes = [...notes, newNote]
+  reviews = [...reviews, newReview]
 
   // Use body parser to parse the body of the request
-  response.status(201).json(note)
+  response.status(201).json(review)
 })
 
 app.use((request, response) => {

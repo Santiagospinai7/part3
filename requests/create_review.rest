@@ -1,0 +1,7 @@
+POST http://localhost:3001/api/reviews 
+Content-Type: application/json
+
+{
+  "title": "It's working the post methid",
+  "content": "It's working the post methid content"
+}
