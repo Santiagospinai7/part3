@@ -27,18 +27,24 @@ const noteSchema = new Schema({
 const Review = model('Review', noteSchema)
 
 // create a new Review
-const review = new Review({
-  title: 'Review 1',
-  content: 'This is the content of the review',
-  date: new Date(),
-  important: true
-})
+// const review = new Review({
+//   title: 'Review 1',
+//   content: 'This is the content of the review',
+//   date: new Date(),
+//   important: true
+// })
 
-review.save()
+// review.save()
+//   .then(result => {
+//     console.log(result)
+//     mongoose.connection.close()
+//   })
+//   .catch(error => {
+//     console.log(error)
+//   })
+
+Review.find({})
   .then(result => {
-    console.log('Review saved!')
+    console.log(result)
     mongoose.connection.close()
-  })
-  .catch(error => {
-    console.log(error)
   })
