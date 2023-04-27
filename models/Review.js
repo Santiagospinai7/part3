@@ -8,6 +8,16 @@ const reviewSchema = new Schema({
   important: Boolean
 })
 
+// Transform the object returned by Mongoose
+reviewSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    // Delete the _id and __v properties
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
 // Define a model to create reviews
 const Review = model('Review', reviewSchema)
 
