@@ -52,16 +52,21 @@ app.get('/api/reviews', (request, response) => {
 })
 
 app.get('/api/reviews/:id', (request, response) => {
-  const id = request.params.id
-  const review = reviews.find(review => review.id === Number(id))
-  console.log('show reviews')
+  const { id } = request.params
 
-  if (review) {
-    response.json(review)
-  } else {
-    // response.send('<h1>no hay</h1>');
-    response.status(404).end()
-  }
+  Review.findById(id).then(review => {
+    if (review) {
+      console.log(review)
+      response.json(review)
+    } else {
+      // response.send('<h1>no hay</h1>');
+      response.status(404).end()
+    }
+  }).catch(error => {
+    console.log(error)
+    // response.status(400).send({ error: 'bad formatted id' }).end()
+    response.status(400).end()
+  })
 })
 
 app.delete('/api/reviews/:id', (request, response) => {
@@ -82,8 +87,7 @@ app.post('/api/reviews', (request, response) => {
   const newReview = new Review({
     title: review.title,
     content: review.content,
-    important: typeof review.important !== 'undefined' ? review.important : false,
-    date: new Date().toISOString()
+    important: typeof review.important !== 'undefined' ? review.important : false
   })
 
   newReview.save()
