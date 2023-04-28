@@ -51,7 +51,7 @@ app.get('/api/reviews', (request, response) => {
   })
 })
 
-app.get('/api/reviews/:id', (request, response) => {
+app.get('/api/reviews/:id', (request, response, next) => {
   const { id } = request.params
 
   Review.findById(id).then(review => {
@@ -63,9 +63,9 @@ app.get('/api/reviews/:id', (request, response) => {
       response.status(404).end()
     }
   }).catch(error => {
-    console.log(error)
     // response.status(400).send({ error: 'bad formatted id' }).end()
-    response.status(400).end()
+    // response.status(400).end()
+    next(error)
   })
 })
 
@@ -99,10 +99,14 @@ app.post('/api/reviews', (request, response) => {
   // response.status(201).json(review)
 })
 
-app.use((request, response) => {
-  response.status(404).json({
-    error: 'Not found'
-  })
+app.use((error, request, response, next) => {
+  console.log(error)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'bad id typed' })
+  } else {
+    return response.status(500).end()
+  }
 })
 
 const PORT = process.env.PORT || 3001
