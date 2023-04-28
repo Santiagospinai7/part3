@@ -12,35 +12,6 @@ app.use(express.json()) // initial Parse JSON bodies
 
 app.use(logger)
 
-// const reviews = [
-//   {
-//     id: 1,
-//     title: 'HTML is easy',
-//     content: 'HTML is easy!',
-//     date: '2019-05-30T17:30:31.098Z',
-//     important: true
-//   },
-//   {
-//     id: 2,
-//     title: 'Browser can execute only Javascript',
-//     content: 'Browser can execute only Javascript',
-//     date: '2019-05-30T18:39:34.091Z',
-//     important: false
-//   },
-//   {
-//     id: 3,
-//     title: 'GET and POST are the most important methods of HTTP protocol',
-//     content: 'GET and POST are the most important methods of HTTP protocol',
-//     date: '2019-05-30T19:20:14.298Z',
-//     important: true
-//   }
-// ]
-
-// const app = http.createServer((request, response) => {
-//   response.writeHead(200, { 'Content-Type': 'application/json' });
-//   response.end(JSON.stringify(notes));
-// });
-
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
@@ -118,6 +89,10 @@ app.post('/api/reviews', (request, response) => {
 
   // Use body parser to parse the body of the request
   // response.status(201).json(review)
+})
+
+app.use((request, response) => {
+  response.status(404).end()
 })
 
 app.use((error, request, response, next) => {
