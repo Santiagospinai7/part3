@@ -1,0 +1,7 @@
+PUT http://localhost:3001/api/reviews/644a5a74faa71ccea9918d21 
+Content-Type: application/json
+
+{
+  "title": "This title was updated",
+  "content": "It's working the post methid content"
+}

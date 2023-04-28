@@ -80,9 +80,9 @@ app.put('/api/reviews/:id', (request, response, next) => {
     important: review.important
   }
 
-  Review.findByIdAndUpdate(id, newReviewInfo)
+  Review.findByIdAndUpdate(id, newReviewInfo, { new: true })
     .then(result => {
-      // Result is the updated review
+      // Result is the old review
       response.status(200).json(result)
     }).catch(error => {
       next(error)
