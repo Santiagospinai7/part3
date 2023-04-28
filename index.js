@@ -69,6 +69,26 @@ app.get('/api/reviews/:id', (request, response, next) => {
   })
 })
 
+app.put('/api/reviews/:id', (request, response, next) => {
+  const { id } = request.params
+
+  const review = request.body
+
+  const newReviewInfo = {
+    title: review.title,
+    content: review.content,
+    important: review.important
+  }
+
+  Review.findByIdAndUpdate(id, newReviewInfo)
+    .then(result => {
+      // Result is the updated review
+      response.status(200).json(result)
+    }).catch(error => {
+      next(error)
+    })
+})
+
 app.delete('/api/reviews/:id', (request, response, next) => {
   const { id } = request.params
   Review.findOneAndRemove(id).then(result => {
