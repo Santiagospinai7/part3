@@ -2,7 +2,12 @@ require('./mongo')
 
 const cors = require('cors')
 const express = require('express')
-const logger = require('./loggerMiddleware')
+
+// import middleware
+const logger = require('./middleware/loggerMiddleware')
+const notFound = require('./middleware/notFound')
+const handleErrors = require('./middleware/handleErrors')
+
 const Review = require('./models/Review')
 
 const app = express()
@@ -62,7 +67,7 @@ app.put('/api/reviews/:id', (request, response, next) => {
 
 app.delete('/api/reviews/:id', (request, response, next) => {
   const { id } = request.params
-  Review.findOneAndRemove(id).then(result => {
+  Review.findOneAndRemove(id).then(() => {
     response.status(204).end()
   }).catch(error => { next(error) })
 })
@@ -91,19 +96,9 @@ app.post('/api/reviews', (request, response) => {
   // response.status(201).json(review)
 })
 
-app.use((request, response) => {
-  response.status(404).end()
-})
+app.use(notFound)
 
-app.use((error, request, response, next) => {
-  console.log(error)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'bad id typed' })
-  } else {
-    return response.status(500).end()
-  }
-})
+app.use(handleErrors)
 
 const PORT = process.env.PORT || 3001
 
