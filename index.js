@@ -2,6 +2,8 @@ require('./mongo')
 
 const cors = require('cors')
 const express = require('express')
+const Sentry = require('@sentry/node')
+const Tracing = require('@sentry/tracing')
 
 // import middleware
 const logger = require('./middleware/loggerMiddleware')
@@ -15,7 +17,27 @@ const app = express()
 app.use(cors())
 app.use(express.json()) // initial Parse JSON bodies
 
+Sentry.init({
+  dsn: 'https://05a850a7ff3a47c6a6edcd93f8c1a6ab@o4505107991822336.ingest.sentry.io/4505107993853952',
+  integrations: [
+    // enable HTTP calls tracing
+    new Sentry.Integrations.Http({ tracing: true }),
+    // enable Express.js middleware tracing
+    new Tracing.Integrations.Express({ app }),
+    // Automatically instrument Node.js libraries and frameworks
+    ...Sentry.autoDiscoverNodePerformanceMonitoringIntegrations()
+  ],
+
+  // Set tracesSampleRate to 1.0 to capture 100%
+  // of transactions for performance monitoring.
+  // We recommend adjusting this value in production
+  tracesSampleRate: 1.0
+})
+
 app.use(logger)
+
+app.use(Sentry.Handlers.requestHandler())
+app.use(Sentry.Handlers.tracingHandler())
 
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
@@ -99,6 +121,8 @@ app.post('/api/reviews', (request, response, next) => {
 })
 
 app.use(notFound)
+
+app.use(Sentry.Handlers.errorHandler())
 
 app.use(handleErrors)
 
