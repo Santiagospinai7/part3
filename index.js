@@ -72,7 +72,7 @@ app.delete('/api/reviews/:id', (request, response, next) => {
   }).catch(error => { next(error) })
 })
 
-app.post('/api/reviews', (request, response) => {
+app.post('/api/reviews', (request, response, next) => {
   const review = request.body
 
   if (!review || !review.content || !review.title) {
@@ -90,6 +90,8 @@ app.post('/api/reviews', (request, response) => {
   newReview.save()
     .then(savedReview => {
       response.status(201).json(savedReview)
+    }).catch(error => {
+      next(error)
     })
 
   // Use body parser to parse the body of the request
