@@ -43,10 +43,9 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/reviews', (request, response) => {
-  Review.find({}).then(reviews => {
-    response.json(reviews)
-  })
+app.get('/api/reviews', async (request, response) => {
+  const reviews = await Review.find({})
+  response.json(reviews)
 })
 
 app.get('/api/reviews/:id', (request, response, next) => {
