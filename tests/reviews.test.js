@@ -10,11 +10,16 @@ const {
 beforeEach(async () => {
   await Review.deleteMany({})
 
-  const review1 = new Review(initialReviews[0])
-  await review1.save()
+  // parallel
+  // const reviewObjects = initialReviews.map(review => new Review(review))
+  // const promiseArray = reviewObjects.map(review => review.save())
+  // await Promise.all(promiseArray)
 
-  const review2 = new Review(initialReviews[1])
-  await review2.save()
+  // sequential
+  for (const review of initialReviews) {
+    const reviewObject = new Review(review)
+    await reviewObject.save()
+  }
 })
 
 // test return the reviews as json
@@ -98,7 +103,7 @@ test('a review can be deleted', async () => {
 })
 
 // DELETE not be deleted
-test('a review not be deleted', async () => {
+test('a invalid review can not be deleted', async () => {
   await api
     .delete('/api/reviews/12345')
     .expect(400)
