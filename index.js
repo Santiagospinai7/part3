@@ -92,7 +92,8 @@ app.delete('/api/reviews/:id', async (request, response, next) => {
     const result = await Review.findOneAndRemove({ _id: id })
 
     if (result === null) {
-      return response.status(400).json({ error: 'Invalid review ID' })
+      next('CastError')
+      // return response.status(400).json({ error: 'Invalid review ID' })
     }
 
     response.status(204).end()
