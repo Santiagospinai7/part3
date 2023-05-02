@@ -47,7 +47,7 @@ app.get('/', (request, response) => {
 
 app.use('/api/reviews', reviewsRouter)
 
-app.use('api/users', usersRouter)
+app.use('/api/users', usersRouter)
 
 app.use(notFound)
 
