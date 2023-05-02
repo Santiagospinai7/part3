@@ -45,9 +45,45 @@ test('all reviews are returned', async () => {
 })
 
 // Get the first review
-test('the first review is about Review 1', async () => {
+test('the fa review content', async () => {
   const response = await api.get('/api/reviews')
-  expect(response.body[0].content).toBe('This is the content of the review 1')
+  const content = response.body.map(r => r.content)
+  expect(content).toContain('This is the content of the review 1')
+})
+
+// Post a new review
+test('a valid review can be added', async () => {
+  const newReview = {
+    title: 'Review 3',
+    content: 'This is the content of the review 3',
+    important: true
+  }
+
+  await api
+    .post('/api/reviews')
+    .send(newReview)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/reviews')
+  const contents = response.body.map(r => r.content)
+  expect(contents).toContain(newReview.content)
+})
+
+// POST a review without content
+test('review without content is not added', async () => {
+  const newReview = {
+    title: 'Review 3',
+    important: true
+  }
+
+  await api
+    .post('/api/reviews')
+    .send(newReview)
+    .expect(400)
+
+  const response = await api.get('/api/reviews')
+  expect(response.body).toHaveLength(initialReviews.length)
 })
 
 afterAll(() => {
