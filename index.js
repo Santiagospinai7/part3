@@ -12,6 +12,10 @@ const handleErrors = require('./middleware/handleErrors')
 
 const Review = require('./models/Review')
 
+// Import controllers
+const usersRouter = require('./controllers/users')
+const reviewsRouter = require('./controllers/reviews')
+
 const app = express()
 
 app.use(cors())
@@ -43,10 +47,10 @@ app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/api/reviews', async (request, response) => {
-  const reviews = await Review.find({})
-  response.json(reviews)
-})
+// app.get('/api/reviews', async (request, response) => {
+//   const reviews = await Review.find({})
+//   response.json(reviews)
+// })
 
 app.get('/api/reviews/:id', (request, response, next) => {
   const { id } = request.params
@@ -124,6 +128,10 @@ app.post('/api/reviews', async (request, response, next) => {
     next(error)
   }
 })
+
+app.use('api/reviews', reviewsRouter)
+
+app.use('api/users', usersRouter)
 
 app.use(notFound)
 
