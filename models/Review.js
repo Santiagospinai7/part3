@@ -5,7 +5,11 @@ const reviewSchema = new Schema({
   title: String,
   content: String,
   date: Date,
-  important: Boolean
+  important: Boolean,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }
 })
 
 // Transform the object returned by Mongoose
