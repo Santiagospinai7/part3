@@ -93,7 +93,7 @@ app.delete('/api/reviews/:id', (request, response, next) => {
   }).catch(error => { next(error) })
 })
 
-app.post('/api/reviews', (request, response, next) => {
+app.post('/api/reviews', async (request, response, next) => {
   const review = request.body
 
   if (!review || !review.content || !review.title) {
@@ -108,15 +108,12 @@ app.post('/api/reviews', (request, response, next) => {
     important: typeof review.important !== 'undefined' ? review.important : false
   })
 
-  newReview.save()
-    .then(savedReview => {
-      response.status(201).json(savedReview)
-    }).catch(error => {
-      next(error)
-    })
-
-  // Use body parser to parse the body of the request
-  // response.status(201).json(review)
+  try {
+    const savedReview = await newReview.save()
+    response.status(200).json(savedReview)
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.use(notFound)

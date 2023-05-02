@@ -48,7 +48,7 @@ test('a valid review can be added', async () => {
   await api
     .post('/api/reviews')
     .send(newReview)
-    .expect(201)
+    .expect(200)
     .expect('Content-Type', /application\/json/)
 
   const { contents, response } = await getAllContentFromReviews()
@@ -71,6 +71,21 @@ test('review without content is not added', async () => {
 
   const { response } = await getAllContentFromReviews()
   expect(response.body).toHaveLength(initialReviews.length)
+})
+
+// DELETE not can be deleted
+test('a review can be deleted', async () => {
+  const { response } = await getAllContentFromReviews()
+  const { body: reviews } = response
+  const reviewToDelete = reviews[0]
+
+  await api
+    .delete(`/api/reviews/${reviewToDelete.id}`)
+    .expect(204)
+
+  const { response: secondResponse } = await getAllContentFromReviews()
+
+  expect(secondResponse.body).toHaveLength(initialReviews.length - 1)
 })
 
 afterAll(() => {
