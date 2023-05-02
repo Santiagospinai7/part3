@@ -1,24 +1,11 @@
 const mongoose = require('mongoose')
-const supertest = require('supertest')
-const { app, server } = require('../index')
+const { server } = require('../index')
 const Review = require('../models/Review')
-
-const api = supertest(app)
-
-const initialReviews = [
-  {
-    title: 'Review 1',
-    content: 'This is the content of the review 1',
-    date: new Date(),
-    important: true
-  },
-  {
-    title: 'Review 2',
-    content: 'This is the content of the review 2',
-    date: new Date(),
-    important: true
-  }
-]
+const {
+  api,
+  initialReviews,
+  getAllContentFromReviews
+} = require('./test_helper')
 
 beforeEach(async () => {
   await Review.deleteMany({})
@@ -40,15 +27,14 @@ test('reviews are returned as json', async () => {
 
 // test return all the reviews
 test('all reviews are returned', async () => {
-  const response = await api.get('/api/reviews')
+  const { response } = await getAllContentFromReviews()
   expect(response.body).toHaveLength(initialReviews.length)
 })
 
 // Get the first review
 test('the fa review content', async () => {
-  const response = await api.get('/api/reviews')
-  const content = response.body.map(r => r.content)
-  expect(content).toContain('This is the content of the review 1')
+  const { contents } = await getAllContentFromReviews()
+  expect(contents).toContain('This is the content of the review 1')
 })
 
 // Post a new review
@@ -65,8 +51,9 @@ test('a valid review can be added', async () => {
     .expect(201)
     .expect('Content-Type', /application\/json/)
 
-  const response = await api.get('/api/reviews')
-  const contents = response.body.map(r => r.content)
+  const { contents, response } = await getAllContentFromReviews()
+
+  expect(response.body).toHaveLength(initialReviews.length + 1)
   expect(contents).toContain(newReview.content)
 })
 
@@ -82,7 +69,7 @@ test('review without content is not added', async () => {
     .send(newReview)
     .expect(400)
 
-  const response = await api.get('/api/reviews')
+  const { response } = await getAllContentFromReviews()
   expect(response.body).toHaveLength(initialReviews.length)
 })
 
