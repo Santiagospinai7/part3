@@ -73,6 +73,14 @@ test('review without content is not added', async () => {
   expect(response.body).toHaveLength(initialReviews.length)
 })
 
+// GET an invalid review id
+test('an invalid review can not be viewed', async () => {
+  await api
+    .get('/api/reviews/1234')
+    .expect(400)
+    .expect('Content-Type', /application\/json/)
+})
+
 // DELETE not can be deleted
 test('a review can be deleted', async () => {
   const { response } = await getAllContentFromReviews()
@@ -83,9 +91,21 @@ test('a review can be deleted', async () => {
     .delete(`/api/reviews/${reviewToDelete.id}`)
     .expect(204)
 
-  const { response: secondResponse } = await getAllContentFromReviews()
+  const { contents, response: secondResponse } = await getAllContentFromReviews()
 
   expect(secondResponse.body).toHaveLength(initialReviews.length - 1)
+  expect(contents).not.toContain(reviewToDelete.content)
+})
+
+// DELETE not be deleted
+test('a review not be deleted', async () => {
+  await api
+    .delete('/api/reviews/12345')
+    .expect(400)
+
+  const { response } = await getAllContentFromReviews()
+
+  expect(response.body).toHaveLength(initialReviews.length)
 })
 
 afterAll(() => {

@@ -86,11 +86,19 @@ app.put('/api/reviews/:id', (request, response, next) => {
     })
 })
 
-app.delete('/api/reviews/:id', (request, response, next) => {
-  const { id } = request.params
-  Review.findOneAndRemove(id).then(() => {
+app.delete('/api/reviews/:id', async (request, response, next) => {
+  try {
+    const { id } = request.params
+    const result = await Review.findOneAndRemove({ _id: id })
+
+    if (result === null) {
+      return response.status(400).json({ error: 'Invalid review ID' })
+    }
+
     response.status(204).end()
-  }).catch(error => { next(error) })
+  } catch (error) {
+    next(error)
+  }
 })
 
 app.post('/api/reviews', async (request, response, next) => {

@@ -1,7 +1,9 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-const connectionString = process.env.MONGO_URL
+// Get the env variables that we need
+const { MONGO_URL, MONGO_URL_TEST, NODE_ENV } = process.env
+const connectionString = NODE_ENV === 'test' ? MONGO_URL_TEST : MONGO_URL
 
 // Connect to mongodb
 mongoose.connect(connectionString)
