@@ -1,5 +1,6 @@
 const usersRouter = require('express').Router()
 const Review = require('../models/Review')
+const User = require('../models/User')
 
 usersRouter.get('/', async (request, response) => {
   const reviews = await Review.find({})
@@ -59,7 +60,16 @@ usersRouter.delete('/:id', async (request, response, next) => {
 })
 
 usersRouter.post('/', async (request, response, next) => {
-  const review = request.body
+  const {
+    title,
+    content,
+    important = false,
+    userId
+  } = request.body
+
+  const review = { title, content, important }
+
+  const user = await User.findById(userId)
 
   if (!review || !review.content || !review.title) {
     return response.status(400).json({
@@ -70,11 +80,16 @@ usersRouter.post('/', async (request, response, next) => {
   const newReview = new Review({
     title: review.title,
     content: review.content,
-    important: typeof review.important !== 'undefined' ? review.important : false
+    important: typeof review.important !== 'undefined' ? review.important : false,
+    user: user._id
   })
 
   try {
     const savedReview = await newReview.save()
+
+    user.reviews = user.reviews.concat(savedReview._id)
+    await user.save()
+
     response.status(200).json(savedReview)
   } catch (error) {
     next(error)
