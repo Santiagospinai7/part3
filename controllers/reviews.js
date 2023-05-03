@@ -1,6 +1,7 @@
 const usersRouter = require('express').Router()
 const Review = require('../models/Review')
 const User = require('../models/User')
+const jwt = require('jsonwebtoken')
 
 usersRouter.get('/', async (request, response) => {
   const reviews = await Review.find({}).populate('user')
@@ -66,6 +67,24 @@ usersRouter.post('/', async (request, response, next) => {
     important = false,
     userId
   } = request.body
+
+  const authorization = request.get('authorization')
+  let token = null
+
+  if (authorization || authorization.toLowerCase().startsWith('bearer')) {
+    token = authorization.substring(7)
+  } else {
+    return response.status(401).json({
+      error: 'token missing or invalid'
+    })
+  }
+
+  // decode token
+  const decodedToken = jwt.verify(token, process.env.SECRET_KEY)
+
+  if (!token || !decodedToken.id) {
+    return response.status(401).json({ error: 'token missing or invalid' })
+  }
 
   const review = { title, content, important }
 
