@@ -1,19 +1,29 @@
+const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const { server } = require('../index')
 const Review = require('../models/Review')
+const User = require('../models/User')
 const {
   api,
   initialReviews,
   getAllContentFromReviews
 } = require('./test_helper')
 
+beforeAll(async () => {
+  await User.deleteMany({})
+
+  // create a user
+  const user = new User({
+    username: 'test',
+    name: 'test',
+    password: 'test'
+  })
+
+  await user.save()
+})
+
 beforeEach(async () => {
   await Review.deleteMany({})
-
-  // parallel
-  // const reviewObjects = initialReviews.map(review => new Review(review))
-  // const promiseArray = reviewObjects.map(review => review.save())
-  // await Promise.all(promiseArray)
 
   // sequential
   for (const review of initialReviews) {
@@ -54,7 +64,21 @@ describe('Get a review', () => {
 
 describe('Create a review', () => {
   // Post a new review
-  test('is possible with a valid review', async () => {
+  test.only('is possible with a valid review', async () => {
+    const user = await User.findOne({ username: 'test' })
+
+    console.log(user)
+
+    const userForToken = {
+      id: user._id,
+      username: user.username
+    }
+
+    // login user
+    const token = jwt.sign(userForToken, process.env.SECRET_KEY)
+
+    console.log('token', token)
+
     const newReview = {
       title: 'Review 3',
       content: 'This is the content of the review 3',
@@ -63,6 +87,7 @@ describe('Create a review', () => {
 
     await api
       .post('/api/reviews')
+      .set('Authorization', `bearer ${token}`)
       .send(newReview)
       .expect(200)
       .expect('Content-Type', /application\/json/)
