@@ -3,5 +3,6 @@ Content-Type: application/json
 
 {
   "title": "It's working the post methid",
-  "content": "It's working the post methid content"
+  "content": "It's working the post methid content",
+  "userId": "64524734390ca1394b520728"
 }
