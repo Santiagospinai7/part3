@@ -80,6 +80,7 @@ usersRouter.post('/', async (request, response, next) => {
   const newReview = new Review({
     title: review.title,
     content: review.content,
+    date: new Date(),
     important: typeof review.important !== 'undefined' ? review.important : false,
     user: user._id
   })
