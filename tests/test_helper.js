@@ -1,5 +1,7 @@
 const supertest = require('supertest')
 const { app } = require('../index')
+const User = require('../models/User')
+
 const api = supertest(app)
 
 const initialReviews = [
@@ -26,8 +28,24 @@ const getAllContentFromReviews = async () => {
   }
 }
 
+const getAllUsers = async () => {
+  const response = await api.get('/api/users')
+  const usernames = response.body.map(user => user.username)
+  return {
+    response,
+    usernames
+  }
+}
+
+const getUsers = async () => {
+  const usersDB = await User.find({})
+  return usersDB.map(user => user.toJSON())
+}
+
 module.exports = {
   api,
   initialReviews,
-  getAllContentFromReviews
+  getAllContentFromReviews,
+  getAllUsers,
+  getUsers
 }
