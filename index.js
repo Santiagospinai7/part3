@@ -13,6 +13,7 @@ const handleErrors = require('./middleware/handleErrors')
 // Import controllers
 const usersRouter = require('./controllers/users')
 const reviewsRouter = require('./controllers/reviews')
+const loginRouter = require('./controllers/login')
 
 const app = express()
 
@@ -44,6 +45,8 @@ app.use(Sentry.Handlers.tracingHandler())
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
+
+app.use('/api/login', loginRouter)
 
 app.use('/api/reviews', reviewsRouter)
 

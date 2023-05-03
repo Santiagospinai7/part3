@@ -12,3 +12,8 @@ mongoose.connect(connectionString)
   }).catch((error) => {
     console.log('Error connecting to MongoDB', error.message)
   })
+
+process.on('uncaughtException', (error) => {
+  console.log('uncaughtException', error.message)
+  mongoose.disconnect()
+})
