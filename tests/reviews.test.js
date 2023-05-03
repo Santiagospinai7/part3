@@ -64,7 +64,7 @@ describe('Get a review', () => {
 
 describe('Create a review', () => {
   // Post a new review
-  test.only('is possible with a valid review', async () => {
+  test('is possible with a valid review', async () => {
     const user = await User.findOne({ username: 'test' })
 
     console.log(user)
@@ -76,8 +76,6 @@ describe('Create a review', () => {
 
     // login user
     const token = jwt.sign(userForToken, process.env.SECRET_KEY)
-
-    console.log('token', token)
 
     const newReview = {
       title: 'Review 3',
@@ -100,6 +98,16 @@ describe('Create a review', () => {
 
   // POST a review without content
   test('is not possible without a content in the review', async () => {
+    const user = await User.findOne({ username: 'test' })
+
+    const userForToken = {
+      id: user._id,
+      username: user.username
+    }
+
+    // login user
+    const token = jwt.sign(userForToken, process.env.SECRET_KEY)
+
     const newReview = {
       title: 'Review 3',
       important: true
@@ -107,8 +115,26 @@ describe('Create a review', () => {
 
     await api
       .post('/api/reviews')
+      .set('Authorization', `bearer ${token}`)
       .send(newReview)
       .expect(400)
+
+    const { response } = await getAllContentFromReviews()
+    expect(response.body).toHaveLength(initialReviews.length)
+  })
+
+  // POST a review without token
+  test('is not possible without a token', async () => {
+    const newReview = {
+      title: 'Review 3',
+      content: 'This is the content of the review 3',
+      important: true
+    }
+
+    await api
+      .post('/api/reviews')
+      .send(newReview)
+      .expect(401)
 
     const { response } = await getAllContentFromReviews()
     expect(response.body).toHaveLength(initialReviews.length)
@@ -116,14 +142,25 @@ describe('Create a review', () => {
 })
 
 describe('Delete a review', () => {
-  // DELETE not can be deleted
+  // DELETE can be deleted
   test('a review can be deleted', async () => {
+    const user = await User.findOne({ username: 'test' })
+
+    const userForToken = {
+      id: user._id,
+      username: user.username
+    }
+
+    // login user
+    const token = jwt.sign(userForToken, process.env.SECRET_KEY)
+
     const { response } = await getAllContentFromReviews()
     const { body: reviews } = response
     const reviewToDelete = reviews[0]
 
     await api
       .delete(`/api/reviews/${reviewToDelete.id}`)
+      .set('Authorization', `bearer ${token}`)
       .expect(204)
 
     const { contents, response: secondResponse } = await getAllContentFromReviews()
@@ -133,14 +170,41 @@ describe('Delete a review', () => {
   })
 
   // DELETE not be deleted
-  test('a invalid review can not be deleted', async () => {
+  test('a invalid review can not be deleted (invalid id)', async () => {
+    const user = await User.findOne({ username: 'test' })
+
+    const userForToken = {
+      id: user._id,
+      username: user.username
+    }
+
+    // login user
+    const token = jwt.sign(userForToken, process.env.SECRET_KEY)
+
     await api
       .delete('/api/reviews/12345')
+      .set('Authorization', `bearer ${token}`)
       .expect(400)
 
     const { response } = await getAllContentFromReviews()
 
     expect(response.body).toHaveLength(initialReviews.length)
+  })
+
+  // DELETE not be deleted (without token)
+  test('a review can not be deleted without a token', async () => {
+    const { response } = await getAllContentFromReviews()
+    const { body: reviews } = response
+    const reviewToDelete = reviews[0]
+
+    await api
+      .delete(`/api/reviews/${reviewToDelete.id}`)
+      .expect(401)
+
+    const { contents, response: secondResponse } = await getAllContentFromReviews()
+
+    expect(secondResponse.body).toHaveLength(initialReviews.length)
+    expect(contents).toContain(reviewToDelete.content)
   })
 })
 
