@@ -1,7 +1,7 @@
 const usersRouter = require('express').Router()
 const Review = require('../models/Review')
 const User = require('../models/User')
-const jwt = require('jsonwebtoken')
+const userExtractor = require('../middleware/userExtractor')
 
 usersRouter.get('/', async (request, response) => {
   const reviews = await Review.find({}).populate('user')
@@ -25,7 +25,7 @@ usersRouter.get('/:id', (request, response, next) => {
   })
 })
 
-usersRouter.put('/:id', (request, response, next) => {
+usersRouter.put('/:id', userExtractor, (request, response, next) => {
   const { id } = request.params
 
   const review = request.body
@@ -44,7 +44,7 @@ usersRouter.put('/:id', (request, response, next) => {
     })
 })
 
-usersRouter.delete('/:id', async (request, response, next) => {
+usersRouter.delete('/:id', userExtractor, async (request, response, next) => {
   try {
     const { id } = request.params
     const result = await Review.findOneAndRemove({ _id: id })
@@ -60,40 +60,18 @@ usersRouter.delete('/:id', async (request, response, next) => {
   }
 })
 
-usersRouter.post('/', async (request, response, next) => {
+usersRouter.post('/', userExtractor, async (request, response, next) => {
   const {
     title,
     content,
     important = false
   } = request.body
 
-  const authorization = request.get('authorization')
-  let token = null
-
-  if (authorization || authorization.toLowerCase().startsWith('bearer')) {
-    token = authorization.substring(7)
-  } else {
-    return response.status(401).json({
-      error: 'token missing or invalid'
-    })
-  }
-
-  // decode token
-  let decodedToken = null
-  try {
-    decodedToken = jwt.verify(token, process.env.SECRET_KEY)
-  } catch (error) {
-    console.log('error is: ', error.name)
-    next(error)
-  }
-
-  if (!token || !decodedToken.id) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
-
   const review = { title, content, important }
 
-  const userId = decodedToken.id
+  // Get user ID from token
+  const { userId } = request
+
   const user = await User.findById(userId)
 
   if (!review || !review.content || !review.title) {
