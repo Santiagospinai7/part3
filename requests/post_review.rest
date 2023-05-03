@@ -1,8 +1,8 @@
 POST http://localhost:3001/api/reviews 
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0NTI0NzM0MzkwY2ExMzk0YjUyMDcyOCIsInVzZXJuYW1lIjoic29zcGluYWkiLCJpYXQiOjE2ODMxMzI1NTV9.mDOZCgXWSXNW81Yg4SqBGwS0Yqs1GVhA-aPF7WgcRP8
 
 {
   "title": "It's working the post methid",
-  "content": "It's working the post methid content",
-  "userId": "64524734390ca1394b520728"
+  "content": "It's working the post methid content"
 }

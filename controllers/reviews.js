@@ -64,8 +64,7 @@ usersRouter.post('/', async (request, response, next) => {
   const {
     title,
     content,
-    important = false,
-    userId
+    important = false
   } = request.body
 
   const authorization = request.get('authorization')
@@ -80,7 +79,13 @@ usersRouter.post('/', async (request, response, next) => {
   }
 
   // decode token
-  const decodedToken = jwt.verify(token, process.env.SECRET_KEY)
+  let decodedToken = null
+  try {
+    decodedToken = jwt.verify(token, process.env.SECRET_KEY)
+  } catch (error) {
+    console.log('error is: ', error.name)
+    next(error)
+  }
 
   if (!token || !decodedToken.id) {
     return response.status(401).json({ error: 'token missing or invalid' })
@@ -88,6 +93,7 @@ usersRouter.post('/', async (request, response, next) => {
 
   const review = { title, content, important }
 
+  const userId = decodedToken.id
   const user = await User.findById(userId)
 
   if (!review || !review.content || !review.title) {
